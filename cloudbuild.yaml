@@ -1,5 +1,5 @@
-steps :
-  # Unity 실행 파일 확인!
+steps:
+  # Unity 실행 파일 확인
   - name: 'unityci/editor:ubuntu-2022.3.51f1-webgl-3.1.0'
     entrypoint: 'bash'
     args:
@@ -23,6 +23,14 @@ steps :
       - 'Builder.BuildWebGL'
       - '-logFile'
       - '/workspace/unity.log'
+
+  # Unity 로그 출력
+  - name: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Unity 로그 출력:"
+        cat /workspace/unity.log
 
   # Storage에 업로드
   - name: 'gcr.io/cloud-builders/gsutil'
