@@ -1,35 +1,29 @@
 steps:
-  # Unity 실행 파일 확인
+  # Unity 실행 파일 확인 및 빌드
   - name: 'unityci/editor:ubuntu-2022.3.51f1-webgl-3.1.0'
+    env:
+      - 'UNITY_LICENSE=${_UNITY_LICENSE}'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        echo "Unity 실행 파일 확인..."
-        ls -l /opt/unity/Editor/
         echo "Unity 버전 확인..."
-        /opt/unity/Editor/Unity -version || true
-
-  # Unity WebGL 빌드
-  - name: 'unityci/editor:ubuntu-2022.3.51f1-webgl-3.1.0'
-    entrypoint: '/opt/unity/Editor/Unity'
-    args:
-      - '-batchmode'
-      - '-nographics'
-      - '-quit'
-      - '-projectPath'
-      - '/workspace'
-      - '-executeMethod'
-      - 'Builder.BuildWebGL'
-      - '-logFile'
-      - '/workspace/unity.log'
-
-  # Unity 로그 출력
-  - name: 'bash'
-    args:
-      - '-c'
-      - |
-        echo "Unity 로그 출력:"
+        /opt/unity/Editor/Unity -version
+        
+        echo "Unity 라이선스 설정..."
+        mkdir -p /root/.local/share/unity3d/Unity/
+        echo "$UNITY_LICENSE" > /root/.local/share/unity3d/Unity/Unity_v2022.x.ulf
+        
+        echo "Unity 빌드 시작..."
+        /opt/unity/Editor/Unity \
+          -batchmode \
+          -nographics \
+          -quit \
+          -projectPath /workspace \
+          -executeMethod Builder.BuildWebGL \
+          -logFile /workspace/unity.log
+        
+        echo "빌드 로그 확인..."
         cat /workspace/unity.log
 
   # Storage에 업로드
